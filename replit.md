@@ -1,6 +1,6 @@
-# [Project name]
+# Bek Market HR Bot
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Bek Market xodimlari uchun korporativ Telegram AI yordamchi boti — kompaniya qoidalari, ichki nizomlar, HR moslashuvi va ish ko'rsatmalari bo'yicha o'zbek tilida javob beradi.
 
 ## Run & Operate
 
@@ -17,28 +17,43 @@ _Replace the heading above with the project's name, and this line with one sente
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
+- AI: OpenAI via Replit AI Integrations (gpt-5-mini)
+- Telegram: node-telegram-bot-api (polling mode)
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/api-server/src/routes/telegram.ts` — Telegram bot logic, polling, message handling
+- `artifacts/api-server/src/knowledge-base.ts` — Company knowledge base (rules, HR policies, etc.)
+- `lib/db/src/schema/telegram-sessions.ts` — DB schema for sessions and message history
+- `lib/integrations-openai-ai-server/` — OpenAI client and utilities
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Polling mode for Telegram (no webhook needed, works in development without a public URL)
+- Conversation history (last 10 messages) stored in PostgreSQL for context
+- System prompt includes full knowledge base — no vector DB needed at current scale
+- Upsert pattern for sessions to handle server restarts gracefully
+- gpt-5-mini used for cost efficiency (high message volume expected)
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Employees message the Telegram bot in Uzbek
+- Bot answers questions about company rules, HR policies, work instructions, salary, leave, dress code, and more
+- `/start` — welcome message, `/help` — command list, `/reset` — clear history
+- All answers strictly grounded in the knowledge base; unknown questions are redirected to HR
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Bot language: Uzbek only
+- No emojis in bot responses
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Bot uses polling mode — only one instance should run at a time (no duplicate processes)
+- `TELEGRAM_BOT_TOKEN` must be set in secrets
+- `AI_INTEGRATIONS_OPENAI_BASE_URL` and `AI_INTEGRATIONS_OPENAI_API_KEY` are auto-provisioned by Replit AI Integrations
+- To update knowledge base: edit `artifacts/api-server/src/knowledge-base.ts` and restart the server
 
 ## Pointers
 
